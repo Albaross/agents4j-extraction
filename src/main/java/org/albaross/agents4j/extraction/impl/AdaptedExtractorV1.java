@@ -16,9 +16,10 @@ public class AdaptedExtractorV1 implements Xtractor<Integer> {
     public Set<Set<String>> initialize(KnowledgeBase<Integer> kb, Collection<Pair<Integer>> input) {
 
         // create rules with empty premise for all actions
-        input.stream()
-                .collect(groupingBy(Pair::getAction, counting()))
-                .forEach((action, count) -> kb.add(new Rule<>(emptySet(), action, (double) count / input.size())));
+        Map<Integer, Long> grouped = input.stream()
+                .collect(groupingBy(Pair::getAction, counting()));
+
+        grouped.forEach((action, count) -> kb.add(new Rule<>(emptySet(), action, (double) count / input.size())));
 
         // collect all literals
         return input.stream()
@@ -39,9 +40,10 @@ public class AdaptedExtractorV1 implements Xtractor<Integer> {
                     .collect(toList());
 
             // create rules with current state for all action
-            supp.stream()
-                    .collect(groupingBy(Pair::getAction, counting()))
-                    .forEach((action, count) -> rules.add(new Rule<>(state, action, (double) count / supp.size())));
+            Map<Integer, Long> grouped = supp.stream()
+                    .collect(groupingBy(Pair::getAction, counting()));
+
+            grouped.forEach((action, count) -> rules.add(new Rule<>(state, action, (double) count / supp.size())));
         });
 
         return rules;
@@ -96,9 +98,11 @@ public class AdaptedExtractorV1 implements Xtractor<Integer> {
         }
 
         // check for any support
-        return input.stream()
-                .anyMatch(p -> p.getState().containsAll(merged)) ?
-                Optional.of(merged) : Optional.empty();
+        if (input.stream().noneMatch(p -> p.getState().containsAll(merged)))
+            return Optional.empty();
+
+        // provide merged state
+        return Optional.of(merged);
     }
 
 }
