@@ -1,17 +1,13 @@
 package org.albaross.agents4j.extraction.data;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.Singular;
 
 import java.util.*;
 
 @Data
-@Builder
 public class Rule<A> {
 
-    @Singular("state")
     @NonNull
     private final Set<String> premise;
 
