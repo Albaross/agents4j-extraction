@@ -1,33 +1,30 @@
 package org.albaross.agents4j.extraction;
 
-import org.albaross.agents4j.extraction.Extractor;
-import org.albaross.agents4j.extraction.KnowledgeBase;
 import org.albaross.agents4j.extraction.data.Pair;
 import org.albaross.agents4j.extraction.data.Rule;
-import org.albaross.agents4j.extraction.data.Tuple;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 public interface Xtractor<A> extends Extractor<A> {
 
     @Override
-    default KnowledgeBase<A> apply(Collection<Pair<A>> pairs) {
+    default KnowledgeBase<A> apply(Collection<Pair<A>> input) {
         KnowledgeBase<A> kb = null;
-        List<Tuple<A>> tuples = initialize(kb, pairs);
+        Set<Set<String>> items = initialize(kb, input);
 
-        while (!pairs.isEmpty()) {
-            kb.addAll(create(tuples));
-            tuples = merge(tuples);
+        while (!input.isEmpty()) {
+            kb.addAll(create(items, input));
+            items = merge(items, input);
         }
 
         return kb;
     }
 
-    List<Tuple<A>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> pairs);
+    Set<Set<String>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> input);
 
-    Collection<Rule<A>> create(List<Tuple<A>> tuples);
+    Collection<Rule<A>> create(Set<Set<String>> items, Collection<Pair<A>> input);
 
-    List<Tuple<A>> merge(List<Tuple<A>> tuples);
+    Set<Set<String>> merge(Set<Set<String>> items, Collection<Pair<A>> input);
 
 }
