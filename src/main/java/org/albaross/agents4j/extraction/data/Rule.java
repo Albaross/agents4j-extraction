@@ -17,16 +17,30 @@ public class Rule<A> {
 
     @Override
     public String toString() {
-        return toString(premise) + " => " + conclusion + " [" + String.format(Locale.ENGLISH, "%.2f", confidence) + "]";
+        return append(new StringBuilder()).toString();
     }
 
     public static final String toString(Set<String> premise) {
-        if (premise.isEmpty()) return "T";
+        return append(new StringBuilder(), premise).toString();
+    }
+
+    public StringBuilder append(StringBuilder sb) {
+        append(sb, premise);
+        sb.append(" => ");
+        sb.append(conclusion);
+        sb.append(" [");
+        sb.append(String.format(Locale.ENGLISH, "%.2f", confidence));
+        sb.append("]");
+        return sb;
+    }
+
+    public static final StringBuilder append(StringBuilder sb, Set<String> premise) {
+        if (premise.isEmpty())
+            return sb.append("T");
 
         List<String> temp = new ArrayList<>(premise);
         Collections.sort(temp);
 
-        StringBuilder sb = new StringBuilder();
         int i = 0;
         for (String s_i : temp) {
             if (i > 0)
@@ -36,7 +50,7 @@ public class Rule<A> {
             i++;
         }
 
-        return sb.toString();
+        return sb;
     }
 
 }

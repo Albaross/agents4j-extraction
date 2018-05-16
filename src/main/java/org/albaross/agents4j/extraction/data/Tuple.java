@@ -20,7 +20,7 @@ public class Tuple<A> {
 
     @Override
     public String toString() {
-        return "(" + premise + "," + pairs + "," + rules + ")";
+        return "(" + Rule.toString(premise) + "," + pairs + "," + rules + ")";
     }
 
 }
