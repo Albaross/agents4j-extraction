@@ -11,7 +11,7 @@ public interface Xtractor<A> extends Extractor<A> {
 
     @Override
     default KnowledgeBase<A> apply(Collection<Pair<A>> input) {
-        KnowledgeBase<A> kb = new HierarchicalKnowledgeBase<>();
+        KnowledgeBase<A> kb = new ModularKnowledgeBase<>();
         if (input.isEmpty())
             return kb;
 
