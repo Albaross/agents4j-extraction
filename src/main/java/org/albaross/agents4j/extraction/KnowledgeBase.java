@@ -4,6 +4,7 @@ import org.albaross.agents4j.extraction.data.Rule;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface KnowledgeBase<A> {
 
@@ -22,5 +23,11 @@ public interface KnowledgeBase<A> {
     void clear();
 
     Collection<Rule<A>> reasoning(Set<String> state);
+
+    default Set<A> actions(Set<String> state) {
+        return reasoning(state).stream()
+                .map(Rule::getConclusion)
+                .collect(Collectors.toSet());
+    }
 
 }
