@@ -10,7 +10,7 @@ import java.util.*;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.*;
 
-public class AdaptedExtractorV1 implements Xtractor<Integer> {
+public class AdaptedExtractor implements Xtractor<Integer> {
 
     @Override
     public Set<Set<String>> initialize(KnowledgeBase<Integer> kb, Collection<Pair<Integer>> input) {
