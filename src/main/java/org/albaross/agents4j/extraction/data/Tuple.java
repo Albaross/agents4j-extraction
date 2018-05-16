@@ -13,14 +13,14 @@ import java.util.Set;
 public class Tuple<A> {
 
     @NonNull
-    private final Set<String> premise;
+    private final Set<String> state;
     @NonNull
     private final Multiset<Pair<A>> pairs;
     private Collection<Rule<A>> rules;
 
     @Override
     public String toString() {
-        return "(" + Rule.toString(premise) + "," + pairs + "," + rules + ")";
+        return "(" + Rule.toString(state) + "," + pairs + "," + rules + ")";
     }
 
 }

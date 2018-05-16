@@ -10,48 +10,29 @@ import static java.util.stream.Collectors.toList;
 
 public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
 
-    private final TreeMap<Long, Set<Rule<A>>> base = new TreeMap<>();
+    private final TreeMap<Long, TreeSet<Rule<A>>> base = new TreeMap<>(Comparator.reverseOrder());
 
     @Override
     public void add(Rule<A> rule) {
         long dim = rule.getPremise().size();
-        Set<Rule<A>> ruleSet = base.get(dim);
-        if (ruleSet == null)
-            base.put(dim, ruleSet = new HashSet<>());
 
-        ruleSet.add(rule);
-    }
+        TreeSet<Rule<A>> level = base.get(dim);
+        if (level == null) base.put(dim, level = new TreeSet<>());
 
-    @Override
-    public void addAll(Collection<Rule<A>> rules) {
-        long last = -1;
-        Set<Rule<A>> ruleSet = null;
-
-        for (Rule<A> r : rules) {
-            long dim = r.getPremise().size();
-            if (dim != last) {
-                ruleSet = base.get(dim);
-                if (ruleSet == null)
-                    base.put(dim, ruleSet = new HashSet<>());
-
-                last = dim;
-            }
-
-            ruleSet.add(r);
-        }
+        level.add(rule);
     }
 
     @Override
     public void remove(Rule<A> rule) {
         long dim = rule.getPremise().size();
-        Set<Rule<A>> ruleSet = base.get(dim);
 
-        if (ruleSet != null) {
-            ruleSet.remove(rule);
+        TreeSet<Rule<A>> level = base.get(dim);
+        if (level == null) return;
 
-            if (ruleSet.isEmpty())
-                base.remove(dim);
-        }
+        level.remove(rule);
+
+        if (level.isEmpty())
+            base.remove(dim);
     }
 
     @Override
@@ -62,12 +43,13 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
     @Override
     public Collection<Rule<A>> reasoning(Set<String> state) {
         // iterate over the rule-sets in descending order
-        for (Set<Rule<A>> rules : base.descendingMap().values()) {
+        for (Set<Rule<A>> rules : base.values()) {
             Map<Double, List<Rule<A>>> grouped = rules.stream()
                     .filter(r -> state.containsAll(r.getPremise()))
                     .collect(groupingBy(Rule::getConfidence, toList()));
 
-            return grouped.get(max(grouped.keySet()));
+            if (!grouped.isEmpty())
+                return grouped.get(max(grouped.keySet()));
         }
 
         return Collections.emptyList();
@@ -78,8 +60,8 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
         final StringBuilder sb = new StringBuilder();
         sb.append("--------------------\n");
 
-        base.forEach((dim, ruleSet) -> {
-            ruleSet.forEach(r -> r.append(sb).append("\n"));
+        base.descendingMap().forEach((dim, level) -> {
+            level.forEach(r -> r.append(sb).append("\n"));
             sb.append("--------------------\n");
         });
 

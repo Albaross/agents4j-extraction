@@ -1,15 +1,15 @@
 package org.albaross.agents4j.extraction.data;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 
 import java.util.Set;
 
 @Data
 @Builder
+@RequiredArgsConstructor
 public class Pair<A> {
 
+    @Singular("symbol")
     @NonNull
     private final Set<String> state;
     @NonNull

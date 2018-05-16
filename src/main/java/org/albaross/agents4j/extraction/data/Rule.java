@@ -1,19 +1,26 @@
 package org.albaross.agents4j.extraction.data;
 
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 
 import java.util.*;
 
 @Data
-public class Rule<A> {
+@Builder
+@RequiredArgsConstructor
+public class Rule<A> implements Comparable<Rule<A>> {
 
+    @Singular("symbol")
     @NonNull
     private final Set<String> premise;
 
     @NonNull
     private final A conclusion;
     private final double confidence;
+
+    @Override
+    public int compareTo(Rule<A> other) {
+        return this.toString().compareTo(other.toString());
+    }
 
     @Override
     public String toString() {
