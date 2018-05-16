@@ -51,8 +51,9 @@ public class AdaptedExtractorV1 implements Xtractor<Integer> {
 
     @Override
     public Set<Set<String>> merge(Set<Set<String>> items, Collection<Pair<Integer>> input) {
+
         final Set<Set<String>> merged = new HashSet<>();
-        final List<Set<String>> itemList = new ArrayList(items);
+        final List<Set<String>> itemList = new ArrayList<>(items);
 
         // merge pairwise
         for (int i = 0; i < itemList.size(); i++) {

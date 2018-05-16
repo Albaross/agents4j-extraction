@@ -5,18 +5,24 @@ import org.albaross.agents4j.extraction.data.Rule;
 import org.albaross.agents4j.extraction.data.Tuple;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public interface Xt2actor<A> extends Extractor<A> {
 
     @Override
     default KnowledgeBase<A> apply(Collection<Pair<A>> input) {
-        KnowledgeBase<A> kb = null;
-        List<Tuple<A>> tuples = initialize(kb, input);
+        KnowledgeBase<A> kb = new HierarchicalKnowledgeBase<>();
+        if (input.isEmpty())
+            return kb;
 
-        while (!input.isEmpty()) {
+        List<Tuple<A>> tuples = initialize(kb, input);
+        int k = 1, n = input.iterator().next().getState().size();
+
+        while (!tuples.isEmpty()) {
             kb.addAll(create(tuples));
-            tuples = merge(tuples);
+            tuples = (k < n) ? merge(tuples) : Collections.emptyList();
+            k++;
         }
 
         return kb;

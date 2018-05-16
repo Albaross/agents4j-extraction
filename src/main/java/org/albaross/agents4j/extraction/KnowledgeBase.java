@@ -9,7 +9,17 @@ public interface KnowledgeBase<A> {
 
     void add(Rule<A> rule);
 
-    void addAll(Collection<Rule<A>> rules);
+    default void addAll(Collection<Rule<A>> rules) {
+        rules.forEach(this::add);
+    }
+
+    void remove(Rule<A> rule);
+
+    default void removeAll(Collection<Rule<A>> rules) {
+        rules.forEach(this::remove);
+    }
+
+    void clear();
 
     Collection<Rule<A>> reasoning(Set<String> state);
 
