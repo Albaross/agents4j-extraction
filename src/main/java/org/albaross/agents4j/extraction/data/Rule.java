@@ -24,24 +24,24 @@ public class Rule<A> implements Comparable<Rule<A>> {
 
     @Override
     public String toString() {
-        return append(new StringBuilder()).toString();
+        return appendTo(new StringBuilder()).toString();
     }
 
-    public static final String toString(Set<String> premise) {
-        return append(new StringBuilder(), premise).toString();
+    public static final String valueOf(Set<String> premise) {
+        return appendTo(new StringBuilder(), premise).toString();
     }
 
-    public StringBuilder append(StringBuilder sb) {
-        append(sb, premise);
+    public StringBuilder appendTo(StringBuilder sb) {
+        appendTo(sb, premise);
         sb.append(" => ");
         sb.append(conclusion);
         sb.append(" [");
-        sb.append(String.format(Locale.ENGLISH, "%.2f", confidence));
+        sb.append(String.format(Locale.ENGLISH, "%.3f", confidence));
         sb.append("]");
         return sb;
     }
 
-    public static final StringBuilder append(StringBuilder sb, Set<String> premise) {
+    public static final StringBuilder appendTo(StringBuilder sb, Set<String> premise) {
         if (premise.isEmpty())
             return sb.append("T");
 

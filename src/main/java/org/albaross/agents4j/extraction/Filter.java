@@ -1,4 +1,4 @@
-package org.albaross.agents4j.extraction.utils;
+package org.albaross.agents4j.extraction;
 
 import org.albaross.agents4j.extraction.KnowledgeBase;
 

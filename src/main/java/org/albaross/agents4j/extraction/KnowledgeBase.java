@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface KnowledgeBase<A> {
+public interface KnowledgeBase<A> extends Iterable<Collection<Rule<A>>> {
 
     void add(Rule<A> rule);
 
@@ -21,6 +21,12 @@ public interface KnowledgeBase<A> {
     }
 
     void clear();
+
+    int size();
+
+    default boolean isEmpty() {
+        return size() == 0;
+    }
 
     Collection<Rule<A>> reasoning(Set<String> state);
 

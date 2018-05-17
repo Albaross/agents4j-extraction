@@ -1,4 +1,4 @@
-package org.albaross.agents4j.extraction.impl;
+package org.albaross.agents4j.extraction.extractors;
 
 import org.albaross.agents4j.extraction.KnowledgeBase;
 import org.albaross.agents4j.extraction.Xtractor;
@@ -10,13 +10,13 @@ import java.util.*;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.*;
 
-public class AdaptedExtractor implements Xtractor<Integer> {
+public class AdaptedExtractor<A> implements Xtractor<A> {
 
     @Override
-    public Set<Set<String>> initialize(KnowledgeBase<Integer> kb, Collection<Pair<Integer>> input) {
+    public Set<Set<String>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> input) {
 
         // create rules with empty premise for all actions
-        Map<Integer, Long> grouped = input.stream()
+        Map<A, Long> grouped = input.stream()
                 .collect(groupingBy(Pair::getAction, counting()));
 
         grouped.forEach((action, count) -> kb.add(new Rule<>(emptySet(), action, (double) count / input.size())));
@@ -30,17 +30,17 @@ public class AdaptedExtractor implements Xtractor<Integer> {
     }
 
     @Override
-    public Collection<Rule<Integer>> create(Set<Set<String>> items, Collection<Pair<Integer>> input) {
-        final List<Rule<Integer>> rules = new ArrayList<>();
+    public Collection<Rule<A>> create(Set<Set<String>> items, Collection<Pair<A>> input) {
+        final List<Rule<A>> rules = new ArrayList<>();
 
         items.forEach(state -> {
             // determine support for current state
-            Collection<Pair<Integer>> supp = input.stream()
+            Collection<Pair<A>> supp = input.stream()
                     .filter(p -> p.getState().containsAll(state))
                     .collect(toList());
 
             // create rules with current state for all action
-            Map<Integer, Long> grouped = supp.stream()
+            Map<A, Long> grouped = supp.stream()
                     .collect(groupingBy(Pair::getAction, counting()));
 
             grouped.forEach((action, count) -> rules.add(new Rule<>(state, action, (double) count / supp.size())));
@@ -50,7 +50,7 @@ public class AdaptedExtractor implements Xtractor<Integer> {
     }
 
     @Override
-    public Set<Set<String>> merge(Set<Set<String>> items, Collection<Pair<Integer>> input) {
+    public Set<Set<String>> merge(Set<Set<String>> items, Collection<Pair<A>> input) {
 
         final Set<Set<String>> merged = new HashSet<>();
         final List<Set<String>> itemList = new ArrayList<>(items);
@@ -66,9 +66,9 @@ public class AdaptedExtractor implements Xtractor<Integer> {
         return merged;
     }
 
-    public static final Optional<Set<String>> mergeStates(Set<String> state1, Set<String> state2,
-                                                          Set<Set<String>> items,
-                                                          Collection<Pair<Integer>> input) {
+    public Optional<Set<String>> mergeStates(Set<String> state1, Set<String> state2,
+                                             Set<Set<String>> items,
+                                             Collection<Pair<A>> input) {
         if (state1.size() != state2.size())
             return Optional.empty();
 

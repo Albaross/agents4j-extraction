@@ -1,5 +1,6 @@
 package org.albaross.agents4j.extraction;
 
+import org.albaross.agents4j.extraction.bases.ModularKnowledgeBase;
 import org.albaross.agents4j.extraction.data.Pair;
 import org.albaross.agents4j.extraction.data.Rule;
 import org.albaross.agents4j.extraction.data.Tuple;
@@ -12,7 +13,7 @@ public interface Xt2actor<A> extends Extractor<A> {
 
     @Override
     default KnowledgeBase<A> apply(Collection<Pair<A>> input) {
-        KnowledgeBase<A> kb = new ModularKnowledgeBase<>();
+        KnowledgeBase<A> kb = knowledgeBase();
         if (input.isEmpty())
             return kb;
 
@@ -26,6 +27,10 @@ public interface Xt2actor<A> extends Extractor<A> {
         }
 
         return kb;
+    }
+
+    default KnowledgeBase<A> knowledgeBase() {
+        return new ModularKnowledgeBase<>();
     }
 
     List<Tuple<A>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> pairs);

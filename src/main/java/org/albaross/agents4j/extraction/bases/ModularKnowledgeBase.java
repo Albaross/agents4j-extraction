@@ -1,5 +1,7 @@
-package org.albaross.agents4j.extraction;
+package org.albaross.agents4j.extraction.bases;
 
+import lombok.RequiredArgsConstructor;
+import org.albaross.agents4j.extraction.KnowledgeBase;
 import org.albaross.agents4j.extraction.data.Rule;
 
 import java.util.*;
@@ -8,6 +10,8 @@ import java.util.stream.Collectors;
 public class ModularKnowledgeBase<A> implements KnowledgeBase<A> {
 
     private final TreeMap<Long, TreeMap<Double, TreeSet<Rule<A>>>> base = new TreeMap<>(Comparator.reverseOrder());
+
+    private int size = 0;
 
     @Override
     public void add(Rule<A> rule) {
@@ -49,6 +53,11 @@ public class ModularKnowledgeBase<A> implements KnowledgeBase<A> {
     }
 
     @Override
+    public int size() {
+        return 0;
+    }
+
+    @Override
     public Collection<Rule<A>> reasoning(Set<String> state) {
         for (TreeMap<Double, TreeSet<Rule<A>>> level : base.values()) {
             for (TreeSet<Rule<A>> module : level.values()) {
@@ -71,10 +80,33 @@ public class ModularKnowledgeBase<A> implements KnowledgeBase<A> {
         sb.append("--------------------\n");
 
         base.descendingMap().forEach((dim, level) -> {
-            level.forEach((conf, module) -> module.forEach(r -> r.append(sb).append("\n")));
+            level.forEach((conf, module) -> module.forEach(r -> r.appendTo(sb).append("\n")));
             sb.append("--------------------\n");
         });
 
         return sb.toString();
+    }
+
+    @Override
+    public Iterator<Collection<Rule<A>>> iterator() {
+        return new ModularIterator<>(base.descendingMap().values().iterator());
+    }
+
+    @RequiredArgsConstructor
+    private static class ModularIterator<A> implements Iterator<Collection<Rule<A>>> {
+
+        private final Iterator<Collection<TreeSet<Rule<A>>>> iterator;
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public Collection<Rule<A>> next() {
+            return iterator.next().stream()
+                    .flatMap(module -> module.stream())
+                    .collect(Collectors.toList());
+        }
     }
 }

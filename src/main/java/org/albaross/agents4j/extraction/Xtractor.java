@@ -1,5 +1,7 @@
 package org.albaross.agents4j.extraction;
 
+import org.albaross.agents4j.extraction.bases.HierarchicalKnowledgeBase;
+import org.albaross.agents4j.extraction.bases.ModularKnowledgeBase;
 import org.albaross.agents4j.extraction.data.Pair;
 import org.albaross.agents4j.extraction.data.Rule;
 
@@ -11,7 +13,7 @@ public interface Xtractor<A> extends Extractor<A> {
 
     @Override
     default KnowledgeBase<A> apply(Collection<Pair<A>> input) {
-        KnowledgeBase<A> kb = new ModularKnowledgeBase<>();
+        KnowledgeBase<A> kb = knowledgeBase();
         if (input.isEmpty())
             return kb;
 
@@ -25,6 +27,10 @@ public interface Xtractor<A> extends Extractor<A> {
         }
 
         return kb;
+    }
+
+    default KnowledgeBase<A> knowledgeBase() {
+        return new ModularKnowledgeBase<>();
     }
 
     Set<Set<String>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> input);

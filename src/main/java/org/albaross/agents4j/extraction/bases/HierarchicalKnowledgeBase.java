@@ -1,5 +1,7 @@
-package org.albaross.agents4j.extraction;
+package org.albaross.agents4j.extraction.bases;
 
+import lombok.RequiredArgsConstructor;
+import org.albaross.agents4j.extraction.KnowledgeBase;
 import org.albaross.agents4j.extraction.data.Rule;
 
 import java.util.*;
@@ -12,6 +14,8 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
 
     private final TreeMap<Long, TreeSet<Rule<A>>> base = new TreeMap<>(Comparator.reverseOrder());
 
+    private int size = 0;
+
     @Override
     public void add(Rule<A> rule) {
         long dim = rule.getPremise().size();
@@ -19,7 +23,7 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
         TreeSet<Rule<A>> level = base.get(dim);
         if (level == null) base.put(dim, level = new TreeSet<>());
 
-        level.add(rule);
+        if (level.add(rule)) size++;
     }
 
     @Override
@@ -29,7 +33,7 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
         TreeSet<Rule<A>> level = base.get(dim);
         if (level == null) return;
 
-        level.remove(rule);
+        if (level.remove(rule)) size--;
 
         if (level.isEmpty())
             base.remove(dim);
@@ -38,6 +42,11 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
     @Override
     public void clear() {
         base.clear();
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 
     @Override
@@ -61,11 +70,32 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
         sb.append("--------------------\n");
 
         base.descendingMap().forEach((dim, level) -> {
-            level.forEach(r -> r.append(sb).append("\n"));
+            level.forEach(r -> r.appendTo(sb).append("\n"));
             sb.append("--------------------\n");
         });
 
         return sb.toString();
 
+    }
+
+    @Override
+    public Iterator<Collection<Rule<A>>> iterator() {
+        return new HierarchicalIterator<>(base.descendingMap().values().iterator());
+    }
+
+    @RequiredArgsConstructor
+    private static class HierarchicalIterator<A> implements Iterator<Collection<Rule<A>>> {
+
+        private final Iterator<TreeSet<Rule<A>>> iterator;
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public Collection<Rule<A>> next() {
+            return iterator.next();
+        }
     }
 }

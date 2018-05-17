@@ -8,6 +8,8 @@ import lombok.NonNull;
 import java.util.Collection;
 import java.util.Set;
 
+import static org.albaross.agents4j.extraction.data.Rule.valueOf;
+
 @Data
 @AllArgsConstructor
 public class Tuple<A> {
@@ -20,7 +22,7 @@ public class Tuple<A> {
 
     @Override
     public String toString() {
-        return "(" + Rule.toString(state) + "," + pairs + "," + rules + ")";
+        return "(" + valueOf(state) + "," + pairs + "," + rules + ")";
     }
 
 }
