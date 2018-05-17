@@ -95,7 +95,7 @@ public class ModularKnowledgeBase<A> implements KnowledgeBase<A> {
     @RequiredArgsConstructor
     private static class ModularIterator<A> implements Iterator<Collection<Rule<A>>> {
 
-        private final Iterator<Collection<TreeSet<Rule<A>>>> iterator;
+        private final Iterator<TreeMap<Double, TreeSet<Rule<A>>>> iterator;
 
         @Override
         public boolean hasNext() {
@@ -104,7 +104,7 @@ public class ModularKnowledgeBase<A> implements KnowledgeBase<A> {
 
         @Override
         public Collection<Rule<A>> next() {
-            return iterator.next().stream()
+            return iterator.next().values().stream()
                     .flatMap(module -> module.stream())
                     .collect(Collectors.toList());
         }
