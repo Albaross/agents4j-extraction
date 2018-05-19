@@ -10,11 +10,10 @@ import java.util.*;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.*;
 
-public class AdaptedExtractor<A> implements Xtractor<A> {
+public class AdaptedExtractor<A> implements Xtractor<A, Set<String>> {
 
     @Override
-    public Set<Set<String>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> input) {
-
+    public Collection<Set<String>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> input) {
         // create rules with empty premise for all actions
         Map<A, Long> grouped = input.stream()
                 .collect(groupingBy(Pair::getAction, counting()));
@@ -30,7 +29,7 @@ public class AdaptedExtractor<A> implements Xtractor<A> {
     }
 
     @Override
-    public Collection<Rule<A>> create(Set<Set<String>> items, Collection<Pair<A>> input) {
+    public Collection<Rule<A>> create(Collection<Set<String>> items, Collection<Pair<A>> input) {
         final List<Rule<A>> rules = new ArrayList<>();
 
         items.forEach(state -> {
@@ -50,25 +49,15 @@ public class AdaptedExtractor<A> implements Xtractor<A> {
     }
 
     @Override
-    public Set<Set<String>> merge(Set<Set<String>> items, Collection<Pair<A>> input) {
-
-        final Set<Set<String>> merged = new HashSet<>();
-        final List<Set<String>> itemList = new ArrayList<>(items);
-
-        // merge pairwise
-        for (int i = 0; i < itemList.size(); i++) {
-            for (int k = i + 1; k < itemList.size(); k++) {
-                mergeStates(itemList.get(i), itemList.get(k), items, input)
-                        .ifPresent(merged::add);
-            }
-        }
-
-        return merged;
+    public Collection<Set<String>> empty() {
+        return new HashSet<>();
     }
 
-    public Optional<Set<String>> mergeStates(Set<String> state1, Set<String> state2,
-                                             Set<Set<String>> items,
-                                             Collection<Pair<A>> input) {
+    @Override
+    public Optional<Set<String>> mergeItems(Set<String> item1, Set<String> item2, Collection<Set<String>> items, Collection<Pair<A>> input) {
+        final Set<String> state1 = item1;
+        final Set<String> state2 = item2;
+
         if (state1.size() != state2.size())
             return Optional.empty();
 
@@ -104,7 +93,6 @@ public class AdaptedExtractor<A> implements Xtractor<A> {
 
         // provide merged state
         return Optional.of(merged);
+
     }
-
 }
-
