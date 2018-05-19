@@ -4,6 +4,8 @@ import lombok.*;
 
 import java.util.Set;
 
+import static org.albaross.agents4j.extraction.data.Rule.valueOf;
+
 @Data
 @Builder
 @RequiredArgsConstructor
@@ -17,7 +19,7 @@ public class Pair<A> {
 
     @Override
     public String toString() {
-        return "(" + state + "," + action + ")";
+        return "(" + valueOf(state) + "," + action + ")";
     }
 
 }
