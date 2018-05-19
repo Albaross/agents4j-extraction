@@ -24,7 +24,7 @@ public class ModularKnowledgeBase<A> implements KnowledgeBase<A> {
         TreeSet<Rule<A>> module = level.get(conf);
         if (module == null) level.put(conf, module = new TreeSet<>());
 
-        module.add(rule);
+        if (module.add(rule)) size++;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ModularKnowledgeBase<A> implements KnowledgeBase<A> {
         Set<Rule<A>> module = level.get(conf);
         if (module == null) return;
 
-        module.remove(rule);
+        if (module.remove(rule)) size--;
 
         if (module.isEmpty())
             level.remove(conf);
@@ -54,7 +54,7 @@ public class ModularKnowledgeBase<A> implements KnowledgeBase<A> {
 
     @Override
     public int size() {
-        return 0;
+        return size;
     }
 
     @Override
