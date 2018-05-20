@@ -4,34 +4,43 @@ import org.albaross.agents4j.extraction.Filter;
 import org.albaross.agents4j.extraction.KnowledgeBase;
 import org.albaross.agents4j.extraction.data.Rule;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.reducing;
 
 public class WorseRulesFilter<A> implements Filter<A> {
 
     @Override
     public KnowledgeBase<A> apply(KnowledgeBase<A> kb) {
-        final List<Rule<A>> worse = new ArrayList<>();
+        final List<Rule<A>> toBeRemoved = new ArrayList<>();
 
+        // iterate over each level of rules
         kb.forEach(level -> {
-            Map<Set<String>, List<Rule<A>>> grouped = level.stream()
-                    .collect(Collectors.groupingBy(r -> r.getPremise(), Collectors.toList()));
 
-            grouped.values().forEach(rules -> {
-                OptionalDouble maxConf = rules.stream()
-                        .mapToDouble(r -> r.getConfidence())
-                        .max();
+            // group rules by premise
+            Collection<List<Rule<A>>> groups = level.stream()
+                    .collect(groupingBy(r -> r.getPremise()))
+                    .values();
 
-                maxConf.ifPresent(max -> {
-                    rules.stream()
-                            .filter(r -> r.getConfidence() != max)
-                            .forEach(r -> worse.add(r));
-                });
-            });
+            // for each group of rules
+            groups.stream()
+                    .forEach(rules -> {
+
+                        // determine max confidence
+                        final double max = rules.stream()
+                                .collect(reducing(0.0, r -> r.getConfidence(), Math::max));
+
+                        // remove all rules not having max confidence
+                        rules.stream()
+                                .filter(r -> r.getConfidence() != max)
+                                .forEach(r -> toBeRemoved.add(r));
+                    });
         });
 
-        kb.removeAll(worse);
-
+        kb.removeAll(toBeRemoved);
         return kb;
     }
 }
