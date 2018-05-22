@@ -12,8 +12,7 @@ import org.albaross.agents4j.extraction.data.Tuple;
 import java.util.*;
 
 import static java.util.Collections.*;
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.*;
 
 public class PartitionExtractor<A> implements Extractor<A, Tuple<A>> {
 
@@ -23,7 +22,7 @@ public class PartitionExtractor<A> implements Extractor<A, Tuple<A>> {
                 .collect(groupingBy(Pair::getAction, counting()));
 
         final long max = grouped.values().stream()
-                .mapToLong(Long::longValue).max().getAsLong();
+                .collect(reducing(0L, Long::longValue, Math::max));
 
         // determine the actions with highest number of occurrences
         grouped.forEach((action, count) -> {
@@ -55,7 +54,8 @@ public class PartitionExtractor<A> implements Extractor<A, Tuple<A>> {
             final Map<A, Long> grouped = mu.getPairs().stream()
                     .collect(groupingBy(Pair::getAction, counting()));
 
-            final long max = grouped.values().stream().mapToLong(Long::longValue).max().getAsLong();
+            final long max = grouped.values().stream()
+                    .collect(reducing(0L, Long::longValue, Math::max));
 
             // determine the actions with highest number of occurrences
             grouped.forEach((action, count) -> {
