@@ -6,8 +6,8 @@ import org.albaross.agents4j.extraction.data.Pair;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 
-public class UnusedRulesFilter<A> implements BiConsumer<KnowledgeBase<A>, Collection<Pair<A>>> {
-
+public class CoRulesFilter<A> implements BiConsumer<KnowledgeBase<A>, Collection<Pair<A>>> {
+    
     @Override
     public void accept(KnowledgeBase<A> kb, Collection<Pair<A>> pairs) {
 
