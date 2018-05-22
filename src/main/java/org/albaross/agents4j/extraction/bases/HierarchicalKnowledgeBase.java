@@ -5,15 +5,41 @@ import org.albaross.agents4j.extraction.data.Rule;
 
 import java.util.*;
 
-import static java.util.Collections.max;
+import static java.util.Collections.emptyList;
+import static java.util.Comparator.reverseOrder;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
 
-    private final TreeMap<Long, Collection<Rule<A>>> base = new TreeMap<>(Comparator.reverseOrder());
-
+    private final TreeMap<Long, Collection<Rule<A>>> base = new TreeMap<>(reverseOrder());
     private int size = 0;
+
+    @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public Collection<Rule<A>> reason(Set<String> state) {
+        if (base.isEmpty())
+            return emptyList();
+
+        // iterate over the rule-sets in descending order
+        for (Collection<Rule<A>> rules : base.values()) {
+            final Map<Double, List<Rule<A>>> grouped = rules.stream()
+                    .filter(r -> state.containsAll(r.getPremise()))
+                    .collect(groupingBy(Rule::getConfidence, TreeMap::new, toList()))
+                    .descendingMap();
+
+            if (!grouped.isEmpty()) {
+                return grouped.values().stream()
+                        .findFirst().get();
+            }
+        }
+
+        return emptyList();
+    }
 
     @Override
     public void add(Rule<A> rule) {
@@ -44,23 +70,8 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
     }
 
     @Override
-    public int size() {
-        return size;
-    }
-
-    @Override
-    public Collection<Rule<A>> reasoning(Set<String> state) {
-        // iterate over the rule-sets in descending order
-        for (Collection<Rule<A>> rules : base.values()) {
-            Map<Double, List<Rule<A>>> grouped = rules.stream()
-                    .filter(r -> state.containsAll(r.getPremise()))
-                    .collect(groupingBy(Rule::getConfidence, toList()));
-
-            if (!grouped.isEmpty())
-                return grouped.get(max(grouped.keySet()));
-        }
-
-        return Collections.emptyList();
+    public Iterator<Collection<Rule<A>>> iterator() {
+        return base.descendingMap().values().iterator();
     }
 
     @Override
@@ -74,12 +85,6 @@ public class HierarchicalKnowledgeBase<A> implements KnowledgeBase<A> {
         });
 
         return sb.toString();
-
-    }
-
-    @Override
-    public Iterator<Collection<Rule<A>>> iterator() {
-        return base.descendingMap().values().iterator();
     }
 
 }
