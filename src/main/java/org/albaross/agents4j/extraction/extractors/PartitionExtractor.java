@@ -3,30 +3,32 @@ package org.albaross.agents4j.extraction.extractors;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
+import org.albaross.agents4j.extraction.Extractor;
 import org.albaross.agents4j.extraction.KnowledgeBase;
-import org.albaross.agents4j.extraction.Xtractor;
 import org.albaross.agents4j.extraction.data.Pair;
 import org.albaross.agents4j.extraction.data.Rule;
 import org.albaross.agents4j.extraction.data.Tuple;
 
 import java.util.*;
 
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 
-public class PartitionExtractor<A> implements Xtractor<A, Tuple<A>> {
+public class PartitionExtractor<A> implements Extractor<A, Tuple<A>> {
 
     @Override
     public Collection<Tuple<A>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> input) {
         final Map<A, Long> grouped = input.stream()
                 .collect(groupingBy(Pair::getAction, counting()));
 
-        final long max = grouped.values().stream().mapToLong(Long::longValue).max().getAsLong();
+        final long max = grouped.values().stream()
+                .mapToLong(Long::longValue).max().getAsLong();
 
         // determine the actions with highest number of occurrences
         grouped.forEach((action, count) -> {
             if (count == max)
-                kb.add(new Rule<>(Collections.emptySet(), action, (double) count / input.size()));
+                kb.add(new Rule<>(emptySet(), action, (double) count / input.size()));
         });
 
         final Map<String, Multiset<Pair<A>>> map = new HashMap<>();
@@ -40,7 +42,7 @@ public class PartitionExtractor<A> implements Xtractor<A, Tuple<A>> {
 
         // create a list of premise-tuples for the collected literals
         final Collection<Tuple<A>> items = empty();
-        map.forEach((s, supp) -> items.add(new Tuple<>(Collections.singleton(s), supp, Collections.emptyList())));
+        map.forEach((s, supp) -> items.add(new Tuple<>(singleton(s), supp, emptyList())));
 
         return items;
     }
@@ -94,6 +96,6 @@ public class PartitionExtractor<A> implements Xtractor<A, Tuple<A>> {
         if (supp.isEmpty())
             return Optional.empty();
 
-        return Optional.of(new Tuple<>(union, supp, Collections.emptyList()));
+        return Optional.of(new Tuple<>(union, supp, emptyList()));
     }
 }

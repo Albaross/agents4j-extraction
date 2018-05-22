@@ -1,7 +1,7 @@
 package org.albaross.agents4j.extraction.extractors;
 
+import org.albaross.agents4j.extraction.Extractor;
 import org.albaross.agents4j.extraction.KnowledgeBase;
-import org.albaross.agents4j.extraction.Xtractor;
 import org.albaross.agents4j.extraction.data.Pair;
 import org.albaross.agents4j.extraction.data.Rule;
 
@@ -10,7 +10,7 @@ import java.util.*;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.*;
 
-public class AdaptedExtractor<A> implements Xtractor<A, Set<String>> {
+public class AdaptedExtractor<A> implements Extractor<A, Set<String>> {
 
     @Override
     public Collection<Set<String>> initialize(KnowledgeBase<A> kb, Collection<Pair<A>> input) {
@@ -54,9 +54,7 @@ public class AdaptedExtractor<A> implements Xtractor<A, Set<String>> {
     }
 
     @Override
-    public Optional<Set<String>> mergeItems(Set<String> item1, Set<String> item2, Collection<Set<String>> items, Collection<Pair<A>> input) {
-        final Set<String> state1 = item1;
-        final Set<String> state2 = item2;
+    public Optional<Set<String>> mergeItems(Set<String> state1, Set<String> state2, Collection<Set<String>> items, Collection<Pair<A>> input) {
 
         if (state1.size() != state2.size())
             return Optional.empty();
