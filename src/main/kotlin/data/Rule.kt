@@ -1,23 +1,23 @@
 package org.albaross.agents4j.extraction.data
 
-data class Rule<A>(val state: Set<String>, val action: A, val confidence: Double) {
+data class Rule<A>(val state: Set<String>, val action: A, val weight: Double) {
 
-    override fun toString() = "${state.asConjunction()} => action [${"%.3f".format(confidence)}]"
+    override fun toString() = "${state.asConjunction()} => action [${"%.3f".format(weight)}]"
 
 }
 
 fun Set<String>.asConjunction(): String {
-
     if (this.isEmpty())
         return "T"
 
-    val builder = StringBuilder()
+    return StringBuilder().appendState(this).toString()
+}
 
-    for ((i, s_i) in this.withIndex()) {
-        if (i > 0) builder.append(" ^ ")
+fun StringBuilder.appendState(state: Collection<String>): StringBuilder {
+    for ((i, s_i) in state.withIndex()) {
+        if (i > 0) this.append(" ^ ")
 
-        builder.append(s_i)
+        this.append(s_i)
     }
-
-    return builder.toString()
+    return this
 }

@@ -28,7 +28,7 @@ class ModularKnowledgeBase<A> : KnowledgeBase<A> {
 
     override fun add(rule: Rule<A>) {
         val dim = rule.state.size
-        val conf = rule.confidence
+        val conf = rule.weight
 
         // find matching module
         val level = base.getOrPut(dim) { TreeMap(reverseOrder()) }
@@ -40,7 +40,7 @@ class ModularKnowledgeBase<A> : KnowledgeBase<A> {
 
     override fun remove(rule: Rule<A>) {
         val dim = rule.state.size
-        val conf = rule.confidence
+        val conf = rule.weight
 
         // find matching module
         val level = base[dim] ?: return

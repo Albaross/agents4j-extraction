@@ -2,6 +2,7 @@ package org.albaross.agents4j.extraction.bases
 
 import org.albaross.agents4j.extraction.KnowledgeBase
 import org.albaross.agents4j.extraction.data.Rule
+import org.albaross.agents4j.extraction.data.appendState
 import java.util.*
 
 /**
@@ -12,50 +13,48 @@ import java.util.*
  */
 class MultiAbstractionLevelKB<A> : KnowledgeBase<A> {
 
-    private val ruleLists = ArrayList<ArrayList<Rule<A>>>()
+    private val ruleLists = LinkedList<LinkedList<Rule<A>>>()
     private var ruleCount = 0L
 
     override fun ruleCount() = ruleCount
 
     override fun reason(state: Set<String>): Collection<Rule<A>> {
-        val potentialFiringRules = ArrayList<Rule<A>>()
+        val potentialFiringRules = LinkedList<Rule<A>>()
         var i = levelCount() - 1
-
         var maxWeight = Double.NEGATIVE_INFINITY
-        while (potentialFiringRules.isEmpty() && (i >= 0)) {
+
+        while (potentialFiringRules.isEmpty() && i >= 0) {
             for (rule in ruleLists[i]) {
                 if (state.containsAll(rule.state)) {
                     potentialFiringRules.add(rule)
 
-                    if (maxWeight < rule.confidence)
-                        maxWeight = rule.confidence
+                    if (maxWeight < rule.weight)
+                        maxWeight = rule.weight
                 }
             }
-
             i--
         }
 
-        val firingRules = ArrayList<Rule<A>>(potentialFiringRules.size)
-
+        val conclusions = LinkedList<Rule<A>>()
         for (rule in potentialFiringRules) {
-            if (maxWeight == rule.confidence)
-                firingRules.add(rule)
+            if (rule.weight == maxWeight)
+                conclusions.add(rule)
         }
 
-        return firingRules
+        return conclusions
     }
 
     override fun add(rule: Rule<A>) {
-        while (ruleLists.size < rule.state.size + 1) {
-            ruleLists.add(ArrayList())
+        while (ruleLists.size <= rule.state.size) {
+            ruleLists.add(LinkedList())
         }
         ruleLists[rule.state.size].add(rule)
     }
 
     override fun remove(rule: Rule<A>) {
         ruleLists[rule.state.size].remove(rule)
-        while (ruleLists[ruleLists.size - 1].isEmpty()) {
-            ruleLists.removeAt(ruleLists.size - 1)
+        while (!ruleLists.isEmpty() && ruleLists.last.isEmpty()) {
+            ruleLists.removeLast()
         }
     }
 
@@ -66,13 +65,22 @@ class MultiAbstractionLevelKB<A> : KnowledgeBase<A> {
     override fun clear() = ruleLists.clear()
 
     override fun toString(): String {
-        val builder = StringBuilder()
+        val result = StringBuilder()
         for (list in ruleLists) {
             for (rule in list) {
-                builder.append(rule).append('\n')
+                if (!rule.state.isEmpty()) {
+                    result.appendState(rule.state)
+                            .append(" => ")
+                }
+
+                result.append(rule.action)
+                        .append(" [")
+                        .append(rule.weight)
+                        .append(']')
             }
-            builder.append('\n')
+            result.append('\n')
         }
-        return builder.toString()
+
+        return result.toString()
     }
 }
