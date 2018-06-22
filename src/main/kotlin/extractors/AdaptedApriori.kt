@@ -12,7 +12,6 @@ import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-
 class AdaptedApriori<A>(private val supplier: Supplier<KnowledgeBase<A>>,
                         private val minsupp: Double = 0.0,
                         private val minconf: Double = 0.0) : Extractor<A> {
@@ -83,7 +82,9 @@ class AdaptedApriori<A>(private val supplier: Supplier<KnowledgeBase<A>>,
         return merged
     }
 
-    private fun mergeItems(item1: Set<String>, item2: Set<String>, items: Collection<Set<String>>, input: Collection<Pair<A>>): Set<String>? {
+    private fun mergeItems(item1: Set<String>, item2: Set<String>,
+                           items: Collection<Set<String>>, input: Collection<Pair<A>>): Set<String>? {
+
         if (item1.size != item2.size)
             return null
 
