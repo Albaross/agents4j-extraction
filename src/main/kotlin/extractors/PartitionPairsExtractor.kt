@@ -2,7 +2,10 @@ package org.albaross.agents4j.extraction.extractors
 
 import org.albaross.agents4j.extraction.Extractor
 import org.albaross.agents4j.extraction.KnowledgeBase
-import org.albaross.agents4j.extraction.data.*
+import org.albaross.agents4j.extraction.data.Multiset
+import org.albaross.agents4j.extraction.data.Pair
+import org.albaross.agents4j.extraction.data.Rule
+import org.albaross.agents4j.extraction.data.Tuple
 import java.util.*
 import java.util.Collections.emptySet
 import java.util.function.Supplier
@@ -128,4 +131,17 @@ class PartitionPairsExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
         return Tuple(union, supp, emptyList())
     }
 
+}
+
+infix fun <A> Collection<Pair<A>>.intersect(other: Collection<Pair<A>>): Collection<Pair<A>> {
+    if (other.size < this.size)
+        return other intersect this
+
+    val intersection = Multiset<A>()
+    for (item in this) {
+        if (other.contains(item))
+            intersection.add(item)
+    }
+
+    return intersection
 }

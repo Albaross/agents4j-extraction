@@ -58,16 +58,3 @@ private class MultisetIterator<A>(private val backing: Iterator<Map.Entry<Pair<A
         return item!!
     }
 }
-
-infix fun <A> Collection<Pair<A>>.intersect(other: Collection<Pair<A>>): Collection<Pair<A>> {
-    if (other.size < this.size)
-        return other intersect this
-
-    val intersection = Multiset<A>()
-    for (item in this) {
-        if (other.contains(item))
-            intersection.add(item)
-    }
-
-    return intersection
-}
