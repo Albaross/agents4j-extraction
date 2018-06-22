@@ -48,11 +48,11 @@ class MultiAbstractionLevelKB<A> : KnowledgeBase<A> {
         while (ruleLists.size <= rule.state.size) {
             ruleLists.add(LinkedList())
         }
-        ruleLists[rule.state.size].add(rule)
+        if (ruleLists[rule.state.size].add(rule)) ruleCount++
     }
 
     override fun remove(rule: Rule<A>) {
-        ruleLists[rule.state.size].remove(rule)
+        if (ruleLists[rule.state.size].remove(rule)) ruleCount--
         while (!ruleLists.isEmpty() && ruleLists.last.isEmpty()) {
             ruleLists.removeLast()
         }
