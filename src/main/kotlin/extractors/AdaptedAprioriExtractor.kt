@@ -12,13 +12,14 @@ import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-class AdaptedApriori<A>(private val supplier: Supplier<KnowledgeBase<A>>,
-                        private val minsupp: Double = 0.0,
-                        private val minconf: Double = 0.0) : Extractor<A> {
+class AdaptedAprioriExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>>,
+                                 private val minsupp: Double = 0.0,
+                                 private val minconf: Double = 0.0) : Extractor<A> {
 
     override fun apply(input: Collection<Pair<A>>): KnowledgeBase<A> {
         val kb = supplier.get()
-        if (input.isEmpty()) return kb
+        if (input.isEmpty())
+            return kb
 
         var items = initialize(kb, input)
         val n = input.first().state.size
@@ -42,7 +43,8 @@ class AdaptedApriori<A>(private val supplier: Supplier<KnowledgeBase<A>>,
 
         for ((action, pairs) in grouped) {
             val conf = pairs.size.toDouble() / input.size
-            if (conf > minconf) kb.add(Rule(emptySet(), action, conf))
+            if (conf > minconf)
+                kb.add(Rule(emptySet(), action, conf))
         }
 
         // collect all literals
@@ -56,7 +58,7 @@ class AdaptedApriori<A>(private val supplier: Supplier<KnowledgeBase<A>>,
 
         for (item in items) {
             val supp = input.filter { it.state.containsAll(item) }
-            val grouped = input.groupBy { it.action }
+            val grouped = supp.groupBy { it.action }
 
             for ((action, pairs) in grouped) {
                 val conf = pairs.size.toDouble() / supp.size

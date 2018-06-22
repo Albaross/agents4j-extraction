@@ -78,10 +78,10 @@ class ModularKnowledgeBase<A> : KnowledgeBase<A> {
 
 }
 
-private class ModularIterator<A>(private val iterator: Iterator<Map<*, Collection<Rule<A>>>>) : Iterator<Collection<Rule<A>>> {
+private class ModularIterator<A>(private val backing: Iterator<Map<*, Collection<Rule<A>>>>) : Iterator<Collection<Rule<A>>> {
 
-    override fun hasNext() = iterator.hasNext()
+    override fun hasNext() = backing.hasNext()
 
-    override fun next() = iterator.next().values.flatMap { it.toList() }
+    override fun next() = backing.next().values.flatMap { it.toList() }
 
 }
