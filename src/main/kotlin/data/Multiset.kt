@@ -3,10 +3,10 @@ package org.albaross.agents4j.extraction.data
 class Multiset<A> : Collection<Pair<A>> {
 
     private val backing = HashMap<Pair<A>, Int>()
-    private var pairCount = 0L
+    private var count = 0L
 
     override val size: Int
-        get() = if (pairCount < Int.MAX_VALUE) pairCount.toInt() else Int.MAX_VALUE
+        get() = if (count < Int.MAX_VALUE) count.toInt() else Int.MAX_VALUE
 
     override fun contains(element: Pair<A>) = backing.containsKey(element)
 
@@ -16,7 +16,7 @@ class Multiset<A> : Collection<Pair<A>> {
 
     fun add(element: Pair<A>) {
         backing[element] = backing.getOrDefault(element, 0) + 1
-        pairCount++
+        count++
     }
 
     override fun iterator(): Iterator<Pair<A>> = MultisetIterator(backing.entries.iterator())
