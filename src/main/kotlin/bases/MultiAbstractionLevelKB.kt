@@ -2,7 +2,6 @@ package org.albaross.agents4j.extraction.bases
 
 import org.albaross.agents4j.extraction.KnowledgeBase
 import org.albaross.agents4j.extraction.data.Rule
-import org.albaross.agents4j.extraction.data.appendState
 import java.util.*
 
 /**
@@ -14,13 +13,17 @@ import java.util.*
 class MultiAbstractionLevelKB<A> : KnowledgeBase<A> {
 
     private val ruleLists = LinkedList<LinkedList<Rule<A>>>()
-    private var ruleCount = 0L
+    private var count = 0L
 
-    override fun ruleCount() = ruleCount
+    override val ruleCount: Long
+        get() = count
+
+    override val levelCount: Int
+        get() = ruleLists.size
 
     override fun reason(state: Set<String>): Collection<Rule<A>> {
         val potentialFiringRules = LinkedList<Rule<A>>()
-        var i = levelCount() - 1
+        var i = ruleLists.size - 1
         var maxWeight = Double.NEGATIVE_INFINITY
 
         while (potentialFiringRules.isEmpty() && i >= 0) {
@@ -45,42 +48,25 @@ class MultiAbstractionLevelKB<A> : KnowledgeBase<A> {
     }
 
     override fun add(rule: Rule<A>) {
-        while (ruleLists.size <= rule.state.size) {
+        while (ruleLists.size <= rule.state.size)
             ruleLists.add(LinkedList())
-        }
-        if (ruleLists[rule.state.size].add(rule)) ruleCount++
+
+        if (ruleLists[rule.state.size].add(rule)) count++
     }
 
     override fun remove(rule: Rule<A>) {
-        if (ruleLists[rule.state.size].remove(rule)) ruleCount--
-        while (!ruleLists.isEmpty() && ruleLists.last.isEmpty()) {
+        if (ruleLists[rule.state.size].remove(rule)) count--
+        while (!ruleLists.isEmpty() && ruleLists.last.isEmpty())
             ruleLists.removeLast()
-        }
     }
-
-    override fun levelCount() = ruleLists.size
 
     override fun iterator() = ruleLists.iterator()
 
-    override fun clear() = ruleLists.clear()
-
-    override fun toString(): String {
-        val result = StringBuilder()
-        for (list in ruleLists) {
-            for (rule in list) {
-                if (!rule.state.isEmpty()) {
-                    result.appendState(rule.state)
-                            .append(" => ")
-                }
-
-                result.append(rule.action)
-                        .append(" [")
-                        .append(rule.weight)
-                        .append(']')
-            }
-            result.append('\n')
-        }
-
-        return result.toString()
+    override fun clear() {
+        ruleLists.clear()
+        count = 0L
     }
+
+    override fun toString() = ruleLists.toString()
+
 }

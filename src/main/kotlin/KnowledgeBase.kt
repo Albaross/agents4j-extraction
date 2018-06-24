@@ -5,9 +5,11 @@ import java.util.stream.StreamSupport
 
 interface KnowledgeBase<A> : Iterable<Collection<Rule<A>>> {
 
-    fun ruleCount(): Long
+    val ruleCount: Long
 
-    fun isEmpty() = (0L == ruleCount())
+    val levelCount: Int
+
+    fun isEmpty() = (0L == ruleCount)
 
     fun reason(state: Set<String>): Collection<Rule<A>>
 
@@ -20,8 +22,6 @@ interface KnowledgeBase<A> : Iterable<Collection<Rule<A>>> {
     fun addAll(rules: Collection<Rule<A>>) = rules.forEach { add(it) }
 
     fun removeAll(rules: Collection<Rule<A>>) = rules.forEach { remove(it) }
-
-    fun levelCount(): Int
 
     fun stream() = StreamSupport.stream(this.spliterator(), false)
 

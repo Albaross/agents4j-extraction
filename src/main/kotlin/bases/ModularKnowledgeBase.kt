@@ -7,9 +7,13 @@ import java.util.*
 class ModularKnowledgeBase<A> : KnowledgeBase<A> {
 
     private val base = TreeMap<Int, TreeMap<Double, TreeSet<Rule<A>>>>()
-    private var ruleCount = 0L
+    private var count = 0L
 
-    override fun ruleCount() = ruleCount
+    override val ruleCount: Long
+        get() = count
+
+    override val levelCount: Int
+        get() = base.keys.firstOrNull() ?: 0
 
     override fun reason(state: Set<String>): Collection<Rule<A>> {
         for ((_, level) in base) {
@@ -35,7 +39,7 @@ class ModularKnowledgeBase<A> : KnowledgeBase<A> {
         val module = level.getOrPut(conf) { TreeSet() }
 
         // add rule to module
-        if (module.add(rule)) ruleCount++
+        if (module.add(rule)) count++
     }
 
     override fun remove(rule: Rule<A>) {
@@ -47,34 +51,21 @@ class ModularKnowledgeBase<A> : KnowledgeBase<A> {
         val module = level[conf] ?: return
 
         // remove rule from module
-        if (module.remove(rule)) ruleCount--
+        if (module.remove(rule)) count--
 
         // clean up empty modules and levels
         if (module.isEmpty()) level.remove(conf)
         if (level.isEmpty()) base.remove(dim)
     }
 
-    override fun levelCount() = base.keys.firstOrNull() ?: 0
-
     override fun iterator(): Iterator<Collection<Rule<A>>> = ModularIterator(base.values.iterator())
 
-    override fun clear() = base.clear()
-
-    override fun toString(): String {
-        val separator = "--------------------\n"
-        val builder = StringBuilder()
-
-        builder.append(separator)
-        for ((_, level) in base.descendingMap()) {
-            for ((_, module) in level) {
-                module.forEach { builder.append(it).append('\n') }
-            }
-
-            builder.append(separator)
-        }
-
-        return builder.toString()
+    override fun clear() {
+        base.clear()
+        count = 0L
     }
+
+    override fun toString() = base.toString()
 
 }
 
