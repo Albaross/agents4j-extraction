@@ -25,7 +25,7 @@ class PartitionPairsExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
         var items = initialize(kb, input)
         val n = input.first().state.size
 
-        for (k in 1 until n) {
+        for (k in 1..n) {
             if (k > 1)
                 items = merge(items, input)
 
@@ -91,7 +91,7 @@ class PartitionPairsExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
         val list = ArrayList(items)
 
         // merge pairwise
-        for (i in 1 until list.size) {
+        for (i in 0 until list.size) {
             for (k in (i + 1) until list.size) {
                 mergeItems(list[i], list[k], input)?.let { merged.add(it) }
             }
@@ -125,7 +125,7 @@ class PartitionPairsExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
 
         // check for support
         val supp = item1.pairs intersect item2.pairs
-        if (supp.isEmpty() || supp.size.toDouble() / input.size <= minsupp)
+        if (supp.isEmpty() || minsupp > 0.0 && supp.size.toDouble() / input.size <= minsupp)
             return null
 
         return Tuple(union, supp, emptyList())

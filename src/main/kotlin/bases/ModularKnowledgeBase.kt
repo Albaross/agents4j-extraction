@@ -6,7 +6,7 @@ import java.util.*
 
 class ModularKnowledgeBase<A> : KnowledgeBase<A> {
 
-    private val base = TreeMap<Int, TreeMap<Double, TreeSet<Rule<A>>>>()
+    private val base = TreeMap<Int, TreeMap<Double, TreeSet<Rule<A>>>>(reverseOrder())
     private var count = 0L
 
     override val ruleCount: Long
@@ -36,7 +36,7 @@ class ModularKnowledgeBase<A> : KnowledgeBase<A> {
 
         // find matching module
         val level = base.getOrPut(dim) { TreeMap(reverseOrder()) }
-        val module = level.getOrPut(conf) { TreeSet() }
+        val module = level.getOrPut(conf) { TreeSet(Comparator { o1, o2 -> o1.toString().compareTo(o2.toString()) }) }
 
         // add rule to module
         if (module.add(rule)) count++

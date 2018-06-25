@@ -24,7 +24,7 @@ class AdaptedAprioriExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
         var items = initialize(kb, input)
         val n = input.first().state.size
 
-        for (k in 1 until n) {
+        for (k in 1..n) {
             if (k > 1)
                 items = merge(items, input)
 
@@ -75,7 +75,7 @@ class AdaptedAprioriExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
         val list = ArrayList(items)
 
         // merge pairwise
-        for (i in 1 until list.size) {
+        for (i in 0 until list.size) {
             for (k in (i + 1) until list.size) {
                 mergeItems(list[i], list[k], items, input)?.let { merged.add(it) }
             }
