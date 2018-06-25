@@ -118,9 +118,15 @@ class AdaptedAprioriExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
         }
 
         // check for support
-        val supp = input.filter { it.state.containsAll(merged) }
-        if (supp.isEmpty() || supp.size.toDouble() / input.size <= minsupp)
-            return null
+        if (minsupp == 0.0) {
+            // shortcut
+            if (input.none { it.state.containsAll(merged) })
+                return null
+        } else {
+            val supp = input.filter { it.state.containsAll(merged) }
+            if (supp.isEmpty() || supp.size.toDouble() / input.size <= minsupp)
+                return null
+        }
 
         // provide merged state
         return merged
