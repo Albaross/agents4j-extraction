@@ -16,8 +16,8 @@ operator fun Collection<String>.times(other: Collection<String>): Collection<Str
     }.iterator()
 
     val items2 = when (other) {
-        is SortedSet -> this
-        else -> this.sorted()
+        is SortedSet -> other
+        else -> other.sorted()
     }.iterator()
 
     // check whether symbols 1 to n-1 matches

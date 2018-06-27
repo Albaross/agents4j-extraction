@@ -70,7 +70,7 @@ class MemExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>>,
         // create a list of premise-tuples for the collected literals
         val items = ArrayList<Tuple<A>>()
         for ((s, supp) in map) {
-            items.add(Tuple(setOf(s), supp, emptyList()))
+            items.add(Tuple(setOf(s), supp, initial))
         }
 
         return items
