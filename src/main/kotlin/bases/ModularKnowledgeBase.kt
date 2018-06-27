@@ -36,7 +36,7 @@ class ModularKnowledgeBase<A> : KnowledgeBase<A> {
 
         // find matching module
         val level = base.getOrPut(dim) { TreeMap(reverseOrder()) }
-        val module = level.getOrPut(conf) { TreeSet(Comparator { o1, o2 -> o1.toString().compareTo(o2.toString()) }) }
+        val module = level.getOrPut(conf) { TreeSet() }
 
         // add rule to module
         if (module.add(rule)) count++
