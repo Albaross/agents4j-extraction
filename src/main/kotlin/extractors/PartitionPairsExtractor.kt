@@ -6,6 +6,8 @@ import org.albaross.agents4j.extraction.data.Multiset
 import org.albaross.agents4j.extraction.data.Pair
 import org.albaross.agents4j.extraction.data.Rule
 import org.albaross.agents4j.extraction.data.Tuple
+import org.albaross.agents4j.extraction.utils.div
+import org.albaross.agents4j.extraction.utils.times
 import java.util.*
 import java.util.Collections.emptySet
 import java.util.function.Supplier
@@ -46,13 +48,13 @@ class PartitionPairsExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
         // determine the actions with highest number of occurrences
         for ((action, pairs) in grouped) {
             if (pairs.size == max) {
-                val conf = pairs.size.toDouble() / input.size
+                val conf = pairs / input
                 if (conf > minconf)
                     kb.add(Rule(emptySet(), action, conf))
             }
         }
 
-        val map = HashMap<String, Multiset<A>>()
+        val map = HashMap<String, Multiset<Pair<A>>>()
         for (pair in input) {
             for (s in pair.state) {
                 val supp = map.getOrPut(s) { Multiset() }
@@ -77,7 +79,7 @@ class PartitionPairsExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
             val grouped = supp.groupBy { it.action }
 
             for ((action, pairs) in grouped) {
-                val conf = pairs.size.toDouble() / supp.size
+                val conf = pairs / supp
                 if (conf > minconf)
                     rules.add(Rule(mu.state, action, conf))
             }
@@ -88,60 +90,28 @@ class PartitionPairsExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>
 
     private fun merge(items: Collection<Tuple<A>>, input: Collection<Pair<A>>): Collection<Tuple<A>> {
         val merged = ArrayList<Tuple<A>>()
-        val list = ArrayList(items)
+        val list = when (items) {
+            is List -> items
+            else -> items.toList()
+        }
 
         // merge pairwise
         for (i in 0 until list.size) {
             for (k in (i + 1) until list.size) {
-                mergeItems(list[i], list[k], input)?.let { merged.add(it) }
+
+                val combined = (list[i].state * list[k].state) ?: continue
+                val supp = (list[i].pairs * list[k].pairs) ?: continue
+
+                // check for support
+                if (minsupp > 0.0 && supp / input <= minsupp)
+                    continue
+
+                merged.add(Tuple(combined, supp, emptyList()))
             }
         }
 
         return merged
     }
 
-    private fun mergeItems(item1: Tuple<A>, item2: Tuple<A>, input: Collection<Pair<A>>): Tuple<A>? {
-
-        if (item1.state.size != item2.state.size)
-            return null
-
-        // check whether symbols 1 to n-1 matches
-        val n = item1.state.size
-        val it1 = item1.state.iterator()
-        val it2 = item2.state.iterator()
-
-        for (i in 0 until n - 1) {
-            if (it1.next() != it2.next())
-                return null
-        }
-
-        if (it1.next() == it2.next())
-            return null
-
-        // merge states
-        val union = TreeSet<String>()
-        union.addAll(item1.state)
-        union.addAll(item2.state)
-
-        // check for support
-        val supp = item1.pairs intersect item2.pairs
-        if (supp.isEmpty() || minsupp > 0.0 && supp.size.toDouble() / input.size <= minsupp)
-            return null
-
-        return Tuple(union, supp, emptyList())
-    }
-
 }
 
-infix fun <A> Collection<Pair<A>>.intersect(other: Collection<Pair<A>>): Collection<Pair<A>> {
-    if (other.size < this.size)
-        return other intersect this
-
-    val intersection = Multiset<A>()
-    for (item in this) {
-        if (other.contains(item))
-            intersection.add(item)
-    }
-
-    return intersection
-}
