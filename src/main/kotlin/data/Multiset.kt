@@ -1,25 +1,25 @@
 package org.albaross.agents4j.extraction.data
 
-class Multiset<A> : Collection<Pair<A>> {
+class Multiset<T> : Collection<T> {
 
-    private val backing = HashMap<Pair<A>, Int>()
+    private val backing = HashMap<T, Int>()
     private var count = 0L
 
     override val size: Int
         get() = if (count < Int.MAX_VALUE) count.toInt() else Int.MAX_VALUE
 
-    override fun contains(element: Pair<A>) = backing.containsKey(element)
+    override fun contains(element: T) = backing.containsKey(element)
 
-    override fun containsAll(elements: Collection<Pair<A>>) = backing.keys.containsAll(elements)
+    override fun containsAll(elements: Collection<T>) = backing.keys.containsAll(elements)
 
     override fun isEmpty() = backing.isEmpty()
 
-    fun add(element: Pair<A>) {
-        backing[element] = backing.getOrDefault(element, 0) + 1
+    fun add(element: T) {
+        backing[element] = (backing[element] ?: 0) + 1
         count++
     }
 
-    override fun iterator(): Iterator<Pair<A>> = MultisetIterator(backing.entries.iterator())
+    override fun iterator(): Iterator<T> = MultisetIterator(backing.entries.iterator())
 
     override fun toString(): String {
         val builder = StringBuilder()
@@ -38,15 +38,15 @@ class Multiset<A> : Collection<Pair<A>> {
     }
 }
 
-private class MultisetIterator<A>(private val backing: Iterator<Map.Entry<Pair<A>, Int>>) : Iterator<Pair<A>> {
+private class MultisetIterator<T>(private val backing: Iterator<Map.Entry<T, Int>>) : Iterator<T> {
 
-    private var item: Pair<A>? = null
+    private var item: T? = null
     private var count = 0
     private var indicator = 0
 
     override fun hasNext() = backing.hasNext() || indicator < count
 
-    override fun next(): Pair<A> {
+    override fun next(): T {
         if (indicator >= count) {
             val entry = backing.next()
             item = entry.key
