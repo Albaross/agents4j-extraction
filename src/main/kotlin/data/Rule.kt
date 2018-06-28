@@ -6,7 +6,7 @@ data class Rule<A>(val state: Collection<String>, val action: A, val weight: Dou
 
     override fun toString() = "$state => $action [$weight]"
 
-    val signature: String
+    private val signature: String
         get() = "${when (state) {
             is SortedSet -> state
             else -> state.sorted()

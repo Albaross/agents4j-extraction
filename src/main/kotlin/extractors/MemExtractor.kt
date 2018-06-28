@@ -82,17 +82,20 @@ class MemExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>>,
         for (mu in items) {
             val supp = mu.pairs
             val grouped = supp.groupBy { it.action }
+            val created = ArrayList<Rule<A>>()
 
             for ((action, pairs) in grouped) {
                 val conf = pairs / supp
                 if (mu.rules.isEmpty() && conf > minconf ||
                         conf > mu.rules.weight && !mu.rules.all { it.action == action }) {
 
-                    val rule = Rule(mu.state, action, conf)
-                    rules.add(rule)
-                    // replace effective rules
-                    mu.rules = listOf(rule)
+                    created.add(Rule(mu.state, action, conf))
                 }
+            }
+
+            if (!created.isEmpty()) {
+                mu.rules = created
+                rules.addAll(created)
             }
         }
 
