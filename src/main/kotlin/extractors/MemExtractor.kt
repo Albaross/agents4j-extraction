@@ -36,7 +36,7 @@ class MemExtractor<A>(val minsupp: Double = 0.0, val minconf: Double = 0.0) : Ex
             for (mu in items) {
                 val rules = create(mu.state, mu.pairs, mu.rules)
 
-                if (rules.isEmpty()) {
+                if (!rules.isEmpty()) {
                     mu.rules = rules
                     kb.addAll(rules)
                 }
