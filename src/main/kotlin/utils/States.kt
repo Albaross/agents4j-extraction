@@ -2,7 +2,7 @@ package org.albaross.agents4j.extraction.utils
 
 import java.util.*
 
-operator fun Collection<String>.times(other: Collection<String>): Collection<String>? {
+inline operator fun Collection<String>.times(other: Collection<String>): Collection<String>? {
 
     // states must have the same size
     if (this.size != other.size)

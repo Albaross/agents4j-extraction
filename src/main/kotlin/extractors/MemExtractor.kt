@@ -2,6 +2,7 @@ package org.albaross.agents4j.extraction.extractors
 
 import org.albaross.agents4j.extraction.Extractor
 import org.albaross.agents4j.extraction.KnowledgeBase
+import org.albaross.agents4j.extraction.bases.MultiAbstractionLevelKB
 import org.albaross.agents4j.extraction.data.Multiset
 import org.albaross.agents4j.extraction.data.Pair
 import org.albaross.agents4j.extraction.data.Rule
@@ -11,17 +12,14 @@ import org.albaross.agents4j.extraction.utils.times
 import org.albaross.agents4j.extraction.utils.weight
 import java.util.*
 import java.util.Collections.emptySet
-import java.util.function.Supplier
 import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-class MemExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>>,
-                      private val minsupp: Double = 0.0,
-                      private val minconf: Double = 0.0) : Extractor<A> {
+class MemExtractor<A>(val minsupp: Double = 0.0, val minconf: Double = 0.0) : Extractor<A> {
 
     override fun apply(input: Collection<Pair<A>>): KnowledgeBase<A> {
-        val kb = supplier.get()
+        val kb = MultiAbstractionLevelKB<A>()
         if (input.isEmpty())
             return kb
 
@@ -35,7 +33,14 @@ class MemExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>>,
             if (items.isEmpty())
                 break
 
-            kb.addAll(create(items))
+            for (mu in items) {
+                val rules = create(mu.state, mu.pairs, mu.rules)
+
+                if (rules.isEmpty()) {
+                    mu.rules = rules
+                    kb.addAll(rules)
+                }
+            }
         }
 
         return kb
@@ -43,21 +48,8 @@ class MemExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>>,
 
     private fun initialize(kb: KnowledgeBase<A>, input: Collection<Pair<A>>): Collection<Tuple<A>> {
         // create rules with empty premise for all actions
-        val grouped = input.groupBy { it.action }
-        val max = grouped.values.map { it.size }.max()
-
-        val initial = ArrayList<Rule<A>>()
-        // determine the actions with highest number of occurrences
-        for ((action, pairs) in grouped) {
-            if (pairs.size == max) {
-                val conf = pairs / input
-                if (conf > minconf) {
-                    val rule = Rule(emptySet(), action, conf)
-                    initial.add(rule)
-                    kb.add(rule)
-                }
-            }
-        }
+        val rules = create(emptySet(), input)
+        kb.addAll(rules)
 
         val map = HashMap<String, Multiset<Pair<A>>>()
         for (pair in input) {
@@ -70,36 +62,35 @@ class MemExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>>,
         // create a list of premise-tuples for the collected literals
         val items = ArrayList<Tuple<A>>()
         for ((s, supp) in map) {
-            items.add(Tuple(setOf(s), supp, initial))
+            // check for support
+            if (minsupp > 0.0 && supp / input <= minsupp)
+                continue
+
+            items.add(Tuple(setOf(s), supp, rules))
         }
 
         return items
     }
 
-    private fun create(items: Collection<Tuple<A>>): Collection<Rule<A>> {
-        val rules = ArrayList<Rule<A>>()
+    private fun create(state: Collection<String>, supp: Collection<Pair<A>>,
+                       existing: Collection<Rule<A>> = emptyList()): Collection<Rule<A>> {
 
-        for (mu in items) {
-            val supp = mu.pairs
-            val grouped = supp.groupBy { it.action }
-            val created = ArrayList<Rule<A>>()
+        val grouped = supp.groupBy { it.action }
+        val max = grouped.values.map { it.size }.max()
+        val created = ArrayList<Rule<A>>()
 
-            for ((action, pairs) in grouped) {
+        for ((action, pairs) in grouped) {
+            if (pairs.size == max) {
                 val conf = pairs / supp
-                if (mu.rules.isEmpty() && conf > minconf ||
-                        conf > mu.rules.weight && !mu.rules.all { it.action == action }) {
 
-                    created.add(Rule(mu.state, action, conf))
-                }
-            }
+                if (conf <= existing.weight(minconf)) continue
+                if (!existing.isEmpty() && existing.all { it.action == action }) continue
 
-            if (!created.isEmpty()) {
-                mu.rules = created
-                rules.addAll(created)
+                created.add(Rule(state, action, conf))
             }
         }
 
-        return rules
+        return created
     }
 
     private fun merge(items: Collection<Tuple<A>>, input: Collection<Pair<A>>): Collection<Tuple<A>> {

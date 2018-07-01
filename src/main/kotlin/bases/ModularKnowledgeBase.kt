@@ -58,7 +58,7 @@ class ModularKnowledgeBase<A> : KnowledgeBase<A> {
         if (level.isEmpty()) base.remove(dim)
     }
 
-    override fun iterator(): Iterator<Collection<Rule<A>>> = ModularIterator(base.values.iterator())
+    override fun iterator(): Iterator<Collection<Rule<A>>> = ModularIterator(base.descendingMap().values.iterator())
 
     override fun clear() {
         base.clear()
