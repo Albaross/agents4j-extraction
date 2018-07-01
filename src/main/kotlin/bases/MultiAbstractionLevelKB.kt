@@ -60,6 +60,8 @@ class MultiAbstractionLevelKB<A> : KnowledgeBase<A> {
             ruleLists.removeLast()
     }
 
+    fun level(i: Int) = ruleLists[i]
+
     override fun iterator() = ruleLists.iterator()
 
     override fun clear() {
