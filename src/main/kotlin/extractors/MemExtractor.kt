@@ -12,14 +12,19 @@ import org.albaross.agents4j.extraction.utils.times
 import org.albaross.agents4j.extraction.utils.weight
 import java.util.*
 import java.util.Collections.emptySet
+import java.util.function.Supplier
 import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-class MemExtractor<A>(val minsupp: Double = 0.0, val minconf: Double = 0.0) : Extractor<A> {
+class MemExtractor<A>(
+        private val supplier: Supplier<KnowledgeBase<A>> = Supplier { MultiAbstractionLevelKB<A>() },
+        private val comparator: Comparator<A>? = null,
+        private val minsupp: Double = 0.0,
+        private val minconf: Double = 0.0) : Extractor<A> {
 
     override fun apply(input: Collection<Pair<A>>): KnowledgeBase<A> {
-        val kb = MultiAbstractionLevelKB<A>()
+        val kb = supplier.get()
         if (input.isEmpty())
             return kb
 
@@ -76,11 +81,11 @@ class MemExtractor<A>(val minsupp: Double = 0.0, val minconf: Double = 0.0) : Ex
                        existing: Collection<Rule<A>> = emptyList()): Collection<Rule<A>> {
 
         val grouped = supp.groupBy { it.action }
-        val max = grouped.values.map { it.size }.max()
+        val maxCount = grouped.values.map { it.size }.max()
         val created = ArrayList<Rule<A>>()
 
         for ((action, pairs) in grouped) {
-            if (pairs.size == max) {
+            if (pairs.size == maxCount) {
                 val conf = pairs / supp
 
                 if (conf <= existing.weight(minconf)) continue
@@ -88,6 +93,11 @@ class MemExtractor<A>(val minsupp: Double = 0.0, val minconf: Double = 0.0) : Ex
 
                 created.add(Rule(state, action, conf))
             }
+        }
+
+        if (comparator != null && created.size > 1) {
+            val minAction = created.map { it.action }.minWith(comparator)
+            return created.filter { it.action == minAction }
         }
 
         return created

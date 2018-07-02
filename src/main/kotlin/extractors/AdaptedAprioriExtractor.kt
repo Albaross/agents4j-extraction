@@ -2,6 +2,7 @@ package org.albaross.agents4j.extraction.extractors
 
 import org.albaross.agents4j.extraction.Extractor
 import org.albaross.agents4j.extraction.KnowledgeBase
+import org.albaross.agents4j.extraction.bases.MultiAbstractionLevelKB
 import org.albaross.agents4j.extraction.data.Pair
 import org.albaross.agents4j.extraction.data.Rule
 import org.albaross.agents4j.extraction.utils.div
@@ -11,9 +12,10 @@ import java.util.function.Supplier
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-class AdaptedAprioriExtractor<A>(private val supplier: Supplier<KnowledgeBase<A>>,
-                                 private val minsupp: Double = 0.0,
-                                 private val minconf: Double = 0.0) : Extractor<A> {
+class AdaptedAprioriExtractor<A>(
+        private val supplier: Supplier<KnowledgeBase<A>> = Supplier { MultiAbstractionLevelKB<A>() },
+        private val minsupp: Double = 0.0,
+        private val minconf: Double = 0.0) : Extractor<A> {
 
     override fun apply(input: Collection<Pair<A>>): KnowledgeBase<A> {
         val kb = supplier.get()
