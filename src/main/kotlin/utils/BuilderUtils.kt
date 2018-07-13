@@ -3,6 +3,7 @@ package org.albaross.agents4j.extraction.utils
 import java.util.*
 
 fun <T> StringBuilder.append(items: Collection<T>, separator: String, empty: String = "", formatter: (T) -> String = { it.toString() }): StringBuilder {
+
     if (items.isEmpty())
         return this.append(empty)
 
