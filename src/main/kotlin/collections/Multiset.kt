@@ -18,13 +18,13 @@ class Multiset<T> : ChangeableCollection<T> {
         return true
     }
 
-    override fun clear() = backing.clear()
-
     override fun remove(element: T): Boolean {
         val count = backing[element] ?: return false
         if (count > 1) backing[element] = count - 1 else backing.remove(element)
         return true
     }
+
+    override fun clear() = backing.clear()
 
     override fun toString(): String {
         val builder = StringBuilder().append('[')

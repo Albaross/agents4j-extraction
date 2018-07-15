@@ -25,5 +25,5 @@ interface ChangeableCollection<T> : Collection<T> {
     fun removeAll(elements: Collection<T>) = elements.map { this.remove(it) }.any { it }
 
     fun clear()
-    
+
 }

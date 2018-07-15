@@ -14,6 +14,9 @@ interface HierarchicalKnowledgeBase<A> : KnowledgeBase<A> {
     fun levels(): Iterable<Collection<Rule<A>>>
 }
 
+val <A> Rule<A>.dim
+    get() = this.state.size
+
 fun <A> HierarchicalKnowledgeBase<A>.format(): String {
 
     val builder = StringBuilder().append("--------------------\n")
