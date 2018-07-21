@@ -53,9 +53,9 @@ class TreeMapKB<A> : KnowledgeBase<A> {
     override val levelCount: Int
         get() = backing.keys.lastOrNull() ?: 0
 
-    override fun level(dim: Int): Collection<Rule<A>>? = backing[dim]
+    override fun level(dim: Int) = backing[dim]
 
-    override fun levels(): Iterable<Collection<Rule<A>>> = backing.values
+    override fun levels() = backing.values
 
     override fun toString() = backing.toString()
 

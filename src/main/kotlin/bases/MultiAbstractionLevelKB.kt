@@ -22,7 +22,7 @@ class MultiAbstractionLevelKB<A> : KnowledgeBase<A> {
 
     override fun contains(rule: Rule<A>) = rule.dim < ruleLists.size && ruleLists[rule.dim].contains(rule)
 
-    override fun iterator(): Iterator<Rule<A>> = NestedIterator(ruleLists.iterator()) { it.iterator() }
+    override fun iterator() = NestedIterator(ruleLists.iterator()) { it.iterator() }
 
     override fun add(rule: Rule<A>) {
         while (ruleLists.size <= rule.state.size)
@@ -68,9 +68,9 @@ class MultiAbstractionLevelKB<A> : KnowledgeBase<A> {
     override val levelCount: Int
         get() = ruleLists.size
 
-    override fun level(dim: Int): Collection<Rule<A>>? = if (dim < ruleLists.size) ruleLists[dim] else null
+    override fun level(dim: Int) = if (dim < ruleLists.size) ruleLists[dim] else null
 
-    override fun levels(): Iterable<Collection<Rule<A>>> = ruleLists
+    override fun levels() = ruleLists
 
     override fun toString() = ruleLists.toString()
 
