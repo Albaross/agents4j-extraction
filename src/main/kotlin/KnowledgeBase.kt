@@ -1,6 +1,7 @@
 package org.albaross.agents4j.extraction
 
 import org.albaross.agents4j.extraction.collections.ChangeableCollection
+import org.albaross.agents4j.extraction.utils.append
 
 interface KnowledgeBase<A> : ChangeableCollection<Rule<A>> {
 
